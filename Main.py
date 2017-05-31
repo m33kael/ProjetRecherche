@@ -3,6 +3,13 @@ import cv2
 from Detect import *
 
 cap = cv2.VideoCapture(0)
+cv2.namedWindow('Projector', 0)
+cv2.setWindowProperty('Projector', 0, cv2.cv.CV_WINDOW_FULLSCREEN)
+ret, frame = cap.read()
+frame_straight = frame
+pic = np.zeros((len(frame_straight), len(frame_straight[0]), 3), np.uint8)
+
+
 pic = cv2.imread('test.jpg', 0)
 
 

@@ -28,8 +28,11 @@ def detect_glyph (picture):
             topdown_quad = get_topdown_quad(gray, approx.reshape(4, 2))
             resized_shape = resize_image(topdown_quad, SHAPE_RESIZE)
 
-            if resized_shape[5, 5] > BLACK_THRESHOLD: continue
+            #if resized_shape[5, 5] > BLACK_THRESHOLD:
+            if resized_shape[(resized_shape.shape[0]/100)*5, (resized_shape.shape[1]/100)*5] > BLACK_THRESHOLD:
+                continue
             glyph_found = False
+
 
             for i in range(4):
                 glyph_pattern = get_glyph_pattern(resized_shape, BLACK_THRESHOLD, WHITE_THRESHOLD)
