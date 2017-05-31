@@ -27,13 +27,8 @@ def detect_glyph (picture):
         if len(approx) == QUADRILATERAL_POINTS:
             topdown_quad = get_topdown_quad(gray, approx.reshape(4, 2))
             resized_shape = resize_image(topdown_quad, SHAPE_RESIZE)
-            test = 5
-            test2 = 5
 
-            test = (resized_shape.shape[0] / 100.0) * 5
-            test2 = (resized_shape.shape[1] / 100.0) * 5
-
-            if resized_shape[test, test2] > BLACK_THRESHOLD: continue
+            if resized_shape[5, 5] > BLACK_THRESHOLD: continue
             glyph_found = False
 
             for i in range(4):
@@ -48,8 +43,8 @@ def detect_glyph (picture):
             if glyph_found:
 
                 coord = approx.reshape(4, 2)
-                mid_x = (coord[0][0] - coord[2][0])/2
-                mid_y = (coord[0][1] - coord[2][1]) / 2
+                mid_x = (coord[2][1] + coord[0][1])/2
+                mid_y = (coord[2][0] + coord[0][0])/2
 
                 center = [mid_x, mid_y]
                 return center
