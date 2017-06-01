@@ -4,15 +4,22 @@ from Detect import *
 
 cap = cv2.VideoCapture(0)
 cv2.namedWindow('Projector', 0)
-cv2.setWindowProperty('Projector', 0, cv2.cv.CV_WINDOW_FULLSCREEN)
+cv2.setWindowProperty('Projector', 0, cv2.WINDOW_FULLSCREEN)
 ret, frame = cap.read()
 frame_straight = frame
 pic = np.zeros((len(frame_straight), len(frame_straight[0]), 3), np.uint8)
 
+"""
+Situation
+Projecteur fixe perpendiculaire à un mur
+Caméra mobile à la même distance du mur que le projecteur et filmant le cadre exact de la projection
+"""
 
 pic = cv2.imread('test.jpg', 0)
 
-
+"""
+Projetter une image témoin sur le mur en position 0,0
+"""
 
 while (True):
 
@@ -21,6 +28,19 @@ while (True):
     # Display the resulting frame
     frame = cv2.flip(frame, 1)
     cv2.imshow('frame', frame)
+
+    """Récupérer les coordonnées virtuel xv,yv du glyphe"""
+    """Récupérer les coordonnées virtuel vv,wv du témoin"""
+
+    """
+    Calculer les coordonnées réels du glyphe grâce à la transformation subie par le témoin
+        xr = xv - vv
+        yr = yv - wv
+    """
+
+    """
+    Projetter l'image en xr, yr, elle sera bien sur le glyph
+    """
 
     # Bout a changer
     frame_straight = frame
@@ -38,7 +58,7 @@ while (True):
     transform = pic
     # transform here
     cv2.namedWindow('Projector', 0)
-    cv2.setWindowProperty('Projector', 0, cv2.cv.CV_WINDOW_FULLSCREEN)
+    cv2.setWindowProperty('Projector', 0, cv2.WINDOW_FULLSCREEN)
     cv2.imshow('Projector', transform)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
