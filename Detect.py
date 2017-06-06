@@ -2,22 +2,39 @@ import cv2
 from glyphfunctions import *
 
 
-
-
-
 QUADRILATERAL_POINTS = 4
 SHAPE_RESIZE = 100.0
 BLACK_THRESHOLD = 100
 WHITE_THRESHOLD = 155
 GLYPH_PATTERN = [1, 0, 1, 0, 1, 0, 1, 0, 1]
 
+#chargement du facecascad
+faceCascade = cv2.CascadeClassifier("C:\Python27\Lib\site-packages\opencv\sources\data\haarcascades\haarcascade_frontalface_default.xml")
+
+def detect_face(picture):
+    gray = cv2.cvtColor(picture, cv2.COLOR_BGR2GRAY)
+    faces = faceCascade.detectMultiScale(
+        gray,
+        scaleFactor=1.1,
+        minNeighbors=5,
+        minSize=(30, 30),
+        flags=cv2.CASCADE_SCALE_IMAGE
+    )
+    face_found = False
+    for (x, y, w, h) in faces:
+        face_found = True
+    if face_found == True:
+        center = [x, y, w, h]
+        return center
+    else:
+        return None
 
 def detect_glyph (picture):
 
     gray = cv2.cvtColor(picture, cv2.COLOR_BGR2GRAY)
     gray = cv2.GaussianBlur(gray, (5, 5), 0)
     edges = cv2.Canny(gray, 100, 200)
-    _, contours, _  = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, _ = cv2.findContours(edges, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours = sorted(contours, key=cv2.contourArea, reverse=True)[:10]
 
     for contour in contours:
@@ -28,8 +45,8 @@ def detect_glyph (picture):
             topdown_quad = get_topdown_quad(gray, approx.reshape(4, 2))
             resized_shape = resize_image(topdown_quad, SHAPE_RESIZE)
 
-            #if resized_shape[5, 5] > BLACK_THRESHOLD:
-            if resized_shape[(resized_shape.shape[0]/100)*5, (resized_shape.shape[1]/100)*5] > BLACK_THRESHOLD:
+            if resized_shape[5, 5] > BLACK_THRESHOLD:
+            #if resized_shape[(resized_shape.shape[0]/100)*5, (resized_shape.shape[1]/100)*5] > BLACK_THRESHOLD:
                 continue
             glyph_found = False
 

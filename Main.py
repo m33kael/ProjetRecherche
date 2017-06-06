@@ -1,13 +1,11 @@
 import numpy as np
 import cv2
+import time
 from Detect import *
 
-cap = cv2.VideoCapture(0)
-cv2.namedWindow('Projector', 0)
-cv2.setWindowProperty('Projector', 0, cv2.WINDOW_FULLSCREEN)
-ret, frame = cap.read()
-frame_straight = frame
-pic = np.zeros((len(frame_straight), len(frame_straight[0]), 3), np.uint8)
+cap = cv2.VideoCapture(1)
+cap.set(3,1024)
+cap.set(4,768)
 
 """
 Situation
@@ -15,55 +13,79 @@ Projecteur fixe perpendiculaire à un mur
 Caméra mobile à la même distance du mur que le projecteur et filmant le cadre exact de la projection
 """
 
-pic = cv2.imread('test.jpg', 0)
+#Projetter une image témoin centré
+fond = cv2.imread('fond.png')
+face = cv2.imread('face.png')
+x_offset = 512 - 50
+y_offset = 384 - 87
+fond[y_offset:y_offset+face.shape[0], x_offset:x_offset+face.shape[1]] = face
+cv2.imshow('render',fond)
 
-"""
-Projetter une image témoin sur le mur en position 0,0
-"""
+#chargement du facecascad
+faceCascade = cv2.CascadeClassifier("C:\Python27\Lib\site-packages\opencv\sources\data\haarcascades\haarcascade_frontalface_default.xml")
+
+#Set abs et ordo à none
+xv = None
+yv = None
+vv = None
+wv = None
+
+"""Récupération des coordonnées vidéos du témoin pour en trouver le décalage"""
+while (True):
+    print("Recup temoin")
+    """Récupérer les coordonnées virtuelles vv,wv de la face témoin"""
+    ret, frame = cap.read()
+    position_face = detect_face(frame)
+    if position_face is not None:
+        print("Trump detected")
+        # Abs haute de la face
+        x = position_face[0]
+        # Ordo haute de la face
+        y = position_face[1]
+        #Largeur de la face
+        w = position_face[2]
+        #Longueur de la face
+        h = position_face[3]
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 0), 2)
+        cv2.imwrite("facedetection.jpg", frame)
+        #Changement de plan pour avoir les coordonées
+        vv = x + (w/2)
+        wv = y + (h/2)
+        print("Coordos virtuelles de la face")
+        print(vv, wv)
+        break
 
 while (True):
 
-    # Vanilla video capture
+    #Capture vidéo en continue
     ret, frame = cap.read()
-    # Display the resulting frame
-    frame = cv2.flip(frame, 1)
-    cv2.imshow('frame', frame)
-
     """Récupérer les coordonnées virtuel xv,yv du glyphe"""
-    """Récupérer les coordonnées virtuel vv,wv du témoin"""
-
-    """
-    Calculer les coordonnées réels du glyphe grâce à la transformation subie par le témoin
-        xr = xv - vv
-        yr = yv - wv
-    """
-
-    """
-    Projetter l'image en xr, yr, elle sera bien sur le glyph
-    """
-
-    # Bout a changer
-    frame_straight = frame
-
-    position_cross = detect_glyph(frame_straight)
-    pic = np.zeros((len(frame_straight), len(frame_straight[0]), 3), np.uint8)
+    position_cross = detect_glyph(frame)
     if position_cross is not None:
-        pic[position_cross[0], position_cross[1]] = (0, 0, 255)
+        print("Glyph detected")
+        #Abs du glyph
+        xv = position_cross[0]
+        #Ordo du glyph
+        yv = position_cross[1]
+        cv2.circle(frame, (int(xv), int(yv)), 10, (0, 0, 255), -1)
+        print("Coordos vidéos du glyph")
+        print(xv, yv)
+        """Calculer les coordonnées réels xr/yr du glyphe grâce à la transformation subie par le témoin """
+        xr = xv + (vv - 512)
+        yr = yv + (wv - 384)
+        print("Coordos reels du glyph")
+        print(xr,yr)
+        """Projetter l'image en xr, yr, elle sera bien sur le glyph"""
+        x_offset = int(xr - 50)
+        y_offset = int(yr - 87)
+        fond2 = cv2.imread('fond.png')
+        fond2[y_offset:y_offset + face.shape[0], x_offset:x_offset + face.shape[1]] = face
+        cv2.imshow('render', fond2)
+        cv2.imwrite("render.jpg", fond2)
 
-    # Vanilla image to display
-    cv2.imshow('Picture', pic)
-
-    # Transformed image to project
-
-    transform = pic
-    # transform here
-    cv2.namedWindow('Projector', 0)
-    cv2.setWindowProperty('Projector', 0, cv2.WINDOW_FULLSCREEN)
-    cv2.imshow('Projector', transform)
-
+    cv2.imshow('frame', frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
-# When everything done, release the capture
 cap.release()
 cv2.destroyAllWindows()
