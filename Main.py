@@ -3,7 +3,7 @@ import cv2
 from Detect import *
 from getPerspectiveTransform import *
 import time
-import sys
+time_start = time.time()
 
 cap = cv2.VideoCapture(0)
 cv2.namedWindow('Projector', 0)
@@ -40,6 +40,7 @@ while calibrated == False:
         points_corner = points_detection(frame)
         print "ok"
         calibrated = True
+        print time.time() - time_start
     except Exception:
         print "fail"
 
