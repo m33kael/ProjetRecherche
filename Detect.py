@@ -1,7 +1,6 @@
 import cv2
 from glyphfunctions import *
 
-
 QUADRILATERAL_POINTS = 4
 SHAPE_RESIZE = 100.0
 BLACK_THRESHOLD = 100
@@ -9,7 +8,7 @@ WHITE_THRESHOLD = 155
 GLYPH_PATTERN = [1, 0, 1, 0, 1, 0, 1, 0, 1]
 
 #chargement du facecascad
-faceCascade = cv2.CascadeClassifier("C:\Python27\Lib\site-packages\opencv\sources\data\haarcascades\haarcascade_frontalface_default.xml")
+faceCascade = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
 def detect_face(picture):
     gray = cv2.cvtColor(picture, cv2.COLOR_BGR2GRAY)
